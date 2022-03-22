@@ -1,0 +1,105 @@
+<h4>Colors to JSON by 9</h4>
+<form name="wordCase">
+  <div>
+    <input
+      type="radio"
+      id="PascalCase"
+      name="whiteCase"
+      value="PascalCase"
+      checked
+    />
+    <label for="PascalCase">PascalCase</label>
+  </div>
+  <div>
+    <input type="radio" id="camelCase" name="whiteCase" value="camelCase" />
+    <label for="camelCase">camelCase</label>
+  </div>
+  <div>
+    <input type="radio" id="snake_case" name="whiteCase" value="snake_case" />
+    <label for="snake_case">snake_case</label>
+  </div>
+</form>
+<form name="colorType">
+  <div>
+    <input type="radio" id="hex" name="colorInput" value="hex" checked />
+    <label for="hex">hex</label>
+  </div>
+  <div>
+    <input type="radio" id="rgba" name="colorInput" value="rgba" />
+    <label for="rgba">rgba</label>
+  </div>
+</form>
+<p><textarea id="text" style="width: 100%; min-height: 200px"></textarea></p>
+<div id="action"></div>
+<button id="create">Copy to Clipboard</button>
+<button id="cancel">Cancel</button>
+<script>
+  function copyToClipboard(textArea, textToCopy) {
+    const actionElement = document.getElementById('action')
+    if (navigator.clipboard && window.isSecureContext) {
+      actionElement.innerText = 'Copied!'
+      return navigator.clipboard.writeText(textToCopy)
+    } else {
+      textArea.value = textToCopy
+      textArea.focus()
+      textArea.select()
+      return new Promise((res, rej) => {
+        document.execCommand('copy') ? res() : rej()
+        actionElement.innerText = 'Copied!'
+      })
+    }
+  }
+  onmessage = (event) => {
+    if (event.data.pluginMessage) {
+      const textbox = document.getElementById('text')
+      textbox.innerText = event.data.pluginMessage.text
+    }
+  }
+  document.getElementById('create').onclick = () => {
+    const textbox = document.getElementById('text')
+    copyToClipboard(textbox, textbox.value)
+  }
+
+  document.getElementById('cancel').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+  }
+  const radioInputs = document.wordCase.whiteCase
+  const colorInput = document.colorType.colorInput
+  var wordConfig = 'PascalCase'
+  var colorConfig = 'hex'
+
+  for (let i = 0; i < radioInputs.length; i++) {
+    radioInputs[i].addEventListener('change', function () {
+      if (this.value !== wordConfig) {
+        wordConfig = this.value
+      }
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: 'getColors',
+            wordCase: this.value,
+            colorConfig,
+          },
+        },
+        '*'
+      )
+    })
+  }
+  for (let i = 0; i < colorInput.length; i++) {
+    colorInput[i].addEventListener('change', function () {
+      if (this.value !== colorConfig) {
+        colorConfig = this.value
+      }
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: 'getColors',
+            wordCase: wordConfig,
+            colorConfig: this.value,
+          },
+        },
+        '*'
+      )
+    })
+  }
+</script>
