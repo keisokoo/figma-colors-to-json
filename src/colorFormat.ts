@@ -16,7 +16,6 @@ export function rgbaToHex(r: number, g: number, b: number, a?: number) {
   return hex + alpha
 }
 
-// background: linear-gradient(295.36deg, rgba(0, 0, 0, 0.4) 15.47%, rgba(5, 0, 255, 0) 59.09%, rgba(250, 199, 208, 0.65) 79.44%);
 export function gradientStopsToRgba(gradientStops: ColorStop[]) {
   return gradientStops
     .map((item) => {
