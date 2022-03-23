@@ -25,9 +25,9 @@ const FontStyle = {
   extrabold: 800,
   black: 900,
 } as const
-function getLocalTextStyles(type: WordCaseType = 'camelCase') {
+function getLocalTextStyles(type: WordCaseType = 'PascalCase') {
   let textStyles: TextStyle[] = figma.getLocalTextStyles()
-  let result = textStyles
+  return textStyles
     .filter((text: TextStyle) => text.type === 'TEXT')
     .map((text: TextStyle) => {
       let fontWeight =
@@ -42,7 +42,6 @@ function getLocalTextStyles(type: WordCaseType = 'camelCase') {
         groupName: splitWithWordCase(text.name, '/', type),
         css: `
           font-size: ${text.fontSize};
-          font-style: ${text.fontName.style};
           font-weight: ${fontWeight};
           letter-spacing: ${
             text.letterSpacing.unit === 'PERCENT'
@@ -56,14 +55,30 @@ function getLocalTextStyles(type: WordCaseType = 'camelCase') {
               ? text.lineHeight.value + '%'
               : text.lineHeight.value + 'px'
           };
-        `,
+        `.replace(/\s/g, ''),
       } as TextCssStyle
-      console.log('pushObj', pushObj)
       return pushObj
     })
+    .reduce((prev, curr) => {
+      let groupNames = curr.groupName.map((item) => {
+        return item.replace(/\./g, '')
+      })
+      let groupObject = set({}, groupNames.join('.'), curr.css)
+      prev = merge(prev, groupObject)
+      return prev
+    }, {} as any)
 }
-getLocalTextStyles()
-
+function getAllStyles(
+  type: WordCaseType = 'PascalCase',
+  colorConfig: 'hex' | 'rgba' = 'hex'
+) {
+  let textStyles = getLocalTextStyles(type)
+  let colorStyles = getLocalSolidStyles(type, colorConfig)
+  return {
+    typography: textStyles,
+    colors: colorStyles,
+  }
+}
 function getBackgroundColor(
   type: WordCaseType = 'PascalCase',
   colorConfig: 'hex' | 'rgba' = 'hex'
@@ -75,15 +90,15 @@ function getBackgroundColor(
       (paint) =>
         (paint.paints?.length > 1 &&
           paint.paints.some(
-            (color) =>
-              color.type === 'SOLID' || color.type === 'GRADIENT_LINEAR'
+            (color) => color.type === 'SOLID' || color.type.includes('GRADIENT')
           )) ||
         (paint.paints.length === 1 &&
-          paint.paints.some((color) => color.type === 'GRADIENT_LINEAR'))
+          paint.paints.some((color) => color.type.includes('GRADIENT')))
     )
     .map((paint: PaintStyle) => {
       return paint.paints.map((color) => {
         if (color.type === 'SOLID') {
+          return color
         } else if (color.type === 'GRADIENT_LINEAR') {
           const gradientTransform = color.gradientTransform
           const matrixArray = [
@@ -103,8 +118,26 @@ function getBackgroundColor(
             gradientStops: color.gradientStops,
             gradientTransform: color.gradientTransform,
             background: bgColor,
+            type: color.type,
           } as any
           return pushObj
+        } else if (color.type === 'GRADIENT_RADIAL') {
+          const gradientTransform = color.gradientTransform
+          const matrixArray = [
+            gradientTransform[0][0],
+            gradientTransform[0][1],
+            gradientTransform[0][2],
+            gradientTransform[1][0],
+            gradientTransform[1][1],
+            gradientTransform[1][2],
+          ] as [number, number, number, number, number, number]
+          const decomposedMatrix = decompose_2d_matrix(matrixArray)
+          console.log('decomposedMatrix', decomposedMatrix)
+          // background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%);
+
+          return color
+        } else {
+          return color
         }
       })
     })
@@ -151,7 +184,7 @@ function getLocalSolidStyles(
     .filter((ii) => ii)
     .reduce((prev, curr) => {
       let groupNames = curr.groupName.map((item) => {
-        return item.replaceAll('.', '')
+        return item.replace(/\./g, '')
       })
       let groupObject = set(
         {},
@@ -165,7 +198,7 @@ function getLocalSolidStyles(
 
 figma.ui.postMessage({
   type: 'colors',
-  text: JSON.stringify(getLocalSolidStyles()),
+  text: JSON.stringify(getAllStyles()),
 })
 
 figma.ui.onmessage = (msg) => {
@@ -175,7 +208,7 @@ figma.ui.onmessage = (msg) => {
   if (msg.type === 'getColors') {
     figma.ui.postMessage({
       type: 'colors',
-      text: JSON.stringify(getLocalSolidStyles(msg.wordCase, msg.colorConfig)),
+      text: JSON.stringify(getAllStyles(msg.wordCase, msg.colorConfig)),
     })
   }
 }
