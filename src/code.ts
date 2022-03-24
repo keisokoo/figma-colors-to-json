@@ -9,6 +9,52 @@ import { splitWithWordCase, WordCaseType } from './wordFormat'
 
 figma.showUI(__html__, { width: 480, height: 480 })
 
+async function changeText(name: string, colorName: string) {
+  const test = figma.currentPage.findOne((n) => {
+    return n.name === name
+  })
+
+  if (test && test.type === 'TEXT') {
+    await figma.loadFontAsync(test.fontName as FontName)
+    test.deleteCharacters(0, test.characters.length)
+    test.insertCharacters(0, colorName)
+  }
+}
+async function colorSync() {
+  const paintStyles = figma.getLocalPaintStyles()
+  paintStyles.map((paint: PaintStyle) => {
+    paint.paints.map((paintItem) => {
+      if (paintItem.type === 'SOLID') {
+        const hexColor = rgbaToHex(
+          paintItem.color.r,
+          paintItem.color.g,
+          paintItem.color.b,
+          1
+        )
+        return changeText(
+          paint.name,
+          hexColor + `, opacity ${(paintItem.opacity * 100).toFixed(0)}%`
+        )
+      } else if (paintItem.type === 'IMAGE') {
+      } else {
+        const complexColor = paintItem.gradientStops
+          .map((paintItem) => {
+            const hexColor = rgbaToHex(
+              paintItem.color.r,
+              paintItem.color.g,
+              paintItem.color.b,
+              paintItem.color.a
+            )
+            return hexColor
+          })
+          .join(', ')
+
+        return changeText(paint.name, complexColor)
+      }
+    })
+  })
+}
+colorSync()
 interface TextCssStyle {
   name: string
   groupName: string[]
@@ -74,6 +120,7 @@ function getAllStyles(
 ) {
   let textStyles = getLocalTextStyles(type)
   let colorStyles = getLocalSolidStyles(type, colorConfig)
+
   return {
     typography: textStyles,
     colors: colorStyles,
@@ -227,7 +274,6 @@ function getLocalSolidStyles(
   colorConfig: 'hex' | 'rgba' = 'hex'
 ) {
   const paintStyles = figma.getLocalPaintStyles()
-
   return paintStyles
     .filter(
       (paint) => paint.paints?.length === 1 && paint.paints[0].type === 'SOLID'
