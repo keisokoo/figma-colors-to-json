@@ -79,12 +79,84 @@ function getAllStyles(
     colors: colorStyles,
   }
 }
-function getBackgroundColor(
-  type: WordCaseType = 'PascalCase',
-  colorConfig: 'hex' | 'rgba' = 'hex'
+function extractLinearGradientColor(
+  name: string,
+  type: WordCaseType,
+  currentColor: GradientPaint
 ) {
-  const paintStyles = figma.getLocalPaintStyles()
+  const gradientTransform = currentColor.gradientTransform
+  const matrixArray = [
+    gradientTransform[0][0],
+    gradientTransform[0][1],
+    gradientTransform[0][2],
+    gradientTransform[1][0],
+    gradientTransform[1][1],
+    gradientTransform[1][2],
+  ] as [number, number, number, number, number, number]
+  const decomposedMatrix = decompose_2d_matrix(matrixArray)
+  const bgColor = `linear-gradient(${
+    decomposedMatrix.deg
+  }deg,${gradientStopsToRgba([...currentColor.gradientStops])};`
+  let pushObj = {
+    name: name.toLocaleLowerCase(),
+    gradientStops: currentColor.gradientStops,
+    gradientTransform: currentColor.gradientTransform,
+    background: bgColor,
+    type: currentColor.type,
+    groupName: splitWithWordCase(name, '/', type),
+  } as any
+  return pushObj
+}
+function extractSolidColor(
+  name: string,
+  type: WordCaseType,
+  currentColor: SolidPaint
+) {
+  let pushObj = {
+    name: name.toLocaleLowerCase(),
+    hex: rgbaToHex(
+      currentColor.color.r,
+      currentColor.color.g,
+      currentColor.color.b,
+      currentColor.opacity
+    ),
+    rgba: `rgba(${componentToRGBNumber(
+      currentColor.color.r
+    )},${componentToRGBNumber(currentColor.color.g)},${componentToRGBNumber(
+      currentColor.color.b
+    )},${currentColor.opacity})`,
+    color: currentColor,
+    groupName: splitWithWordCase(name, '/', type),
+  } as any
+  return pushObj
+}
+function extractSolidBackgroundColor(
+  name: string,
+  type: WordCaseType,
+  currentColor: SolidPaint
+) {
+  let pushObj = {
+    name: name.toLocaleLowerCase(),
+    hex: rgbaToHex(
+      currentColor.color.r,
+      currentColor.color.g,
+      currentColor.color.b,
+      currentColor.opacity
+    ),
+    rgba: `rgba(${componentToRGBNumber(
+      currentColor.color.r
+    )},${componentToRGBNumber(currentColor.color.g)},${componentToRGBNumber(
+      currentColor.color.b
+    )},${currentColor.opacity})`,
+    color: currentColor,
+    groupName: splitWithWordCase(name, '/', type),
+  } as any
+  return pushObj
+}
 
+function getBackgroundColor(type: WordCaseType = 'PascalCase') {
+  const paintStyles = figma.getLocalPaintStyles()
+  // background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
   const backgroundColors = paintStyles
     .filter(
       (paint) =>
@@ -99,6 +171,7 @@ function getBackgroundColor(
       return paint.paints.map((color) => {
         if (color.type === 'SOLID') {
           return color
+          // return extractSolidColor(paint.name, type, color)
         } else if (color.type === 'GRADIENT_LINEAR') {
           const gradientTransform = color.gradientTransform
           const matrixArray = [
@@ -124,17 +197,19 @@ function getBackgroundColor(
         } else if (color.type === 'GRADIENT_RADIAL') {
           const gradientTransform = color.gradientTransform
           const matrixArray = [
-            gradientTransform[0][0],
-            gradientTransform[0][1],
-            gradientTransform[0][2],
-            gradientTransform[1][0],
-            gradientTransform[1][1],
-            gradientTransform[1][2],
+            Math.round(gradientTransform[0][0]),
+            Math.round(gradientTransform[0][1]),
+            Math.round(gradientTransform[0][2]),
+            Math.round(gradientTransform[1][0]),
+            Math.round(gradientTransform[1][1]),
+            Math.round(gradientTransform[1][2]),
           ] as [number, number, number, number, number, number]
           const decomposedMatrix = decompose_2d_matrix(matrixArray)
-          console.log('decomposedMatrix', decomposedMatrix)
-          // background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%);
-
+          console.log(
+            'decomposedMatrix',
+            decomposedMatrix,
+            color.gradientTransform
+          )
           return color
         } else {
           return color
@@ -160,25 +235,7 @@ function getLocalSolidStyles(
     .map((paint: PaintStyle) => {
       const currentColor = paint.paints[0]
       if (currentColor.type === 'SOLID') {
-        let pushObj = {
-          name: paint.name.toLocaleLowerCase(),
-          hex: rgbaToHex(
-            currentColor.color.r,
-            currentColor.color.g,
-            currentColor.color.b,
-            currentColor.opacity
-          ),
-          rgba: `rgba(${componentToRGBNumber(
-            currentColor.color.r
-          )},${componentToRGBNumber(
-            currentColor.color.g
-          )},${componentToRGBNumber(currentColor.color.b)},${
-            currentColor.opacity
-          })`,
-          color: currentColor,
-        } as any
-        pushObj.groupName = splitWithWordCase(paint.name, '/', type)
-        return pushObj
+        return extractSolidColor(paint.name, type, currentColor)
       }
     })
     .filter((ii) => ii)
