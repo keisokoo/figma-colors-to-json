@@ -5,8 +5,7 @@
   "main": "code.js",
   "scripts": {
     "start": "webpack --mode=development --watch",
-    "build": "tsc -p tsconfig.json",
-    "bundle": "webpack --mode=production"
+    "build": "webpack --mode=production"
   },
   "author": "",
   "license": "",

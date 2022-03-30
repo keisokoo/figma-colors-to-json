@@ -76,31 +76,31 @@ function getLocalTextStyles(type: WordCaseType = 'PascalCase') {
   return textStyles
     .filter((text: TextStyle) => text.type === 'TEXT')
     .map((text: TextStyle) => {
-      let fontWeight =
-        FontStyle[
-          text.fontName.style
-            .replace(/\s/g, '')
-            .toLocaleLowerCase() as keyof typeof FontStyle
-        ] && 400
+      let fontNameStyle = text.fontName.style
+        .replace(/\s/g, '')
+        .toLocaleLowerCase() as keyof typeof FontStyle
+      let fontWeight = FontStyle[fontNameStyle] ?? 400
 
       let pushObj = {
         name: text.name,
         groupName: splitWithWordCase(text.name, '/', type),
         css: `
-          font-size: ${text.fontSize};
+          font-size: ${text.fontSize}px;
           font-weight: ${fontWeight};
           letter-spacing: ${
             text.letterSpacing.unit === 'PERCENT'
               ? text.letterSpacing.value + '%'
               : text.letterSpacing.value + 'px'
           };
-          line-height: ${
-            text.lineHeight.unit === 'AUTO'
-              ? 'auto'
-              : text.lineHeight.unit === 'PERCENT'
-              ? text.lineHeight.value + '%'
-              : text.lineHeight.value + 'px'
-          };
+          ${
+            text.lineHeight.unit !== 'AUTO'
+              ? `line-height: ${
+                  text.lineHeight.unit === 'PERCENT'
+                    ? text.lineHeight.value + '%'
+                    : text.lineHeight.value + 'px'
+                };`
+              : ''
+          }
         `.replace(/\s/g, ''),
       } as TextCssStyle
       return pushObj
@@ -301,7 +301,9 @@ function getLocalSolidStyles(
 
 figma.ui.postMessage({
   type: 'colors',
-  text: JSON.stringify(getAllStyles()),
+  text: `const assets = ${JSON.stringify(
+    getAllStyles()
+  )};\nexport default assets`,
 })
 
 figma.ui.onmessage = (msg) => {
@@ -311,7 +313,9 @@ figma.ui.onmessage = (msg) => {
   if (msg.type === 'getColors') {
     figma.ui.postMessage({
       type: 'colors',
-      text: JSON.stringify(getAllStyles(msg.wordCase, msg.colorConfig)),
+      text: `const assets = ${JSON.stringify(
+        getAllStyles(msg.wordCase, msg.colorConfig)
+      )};\nexport default assets`,
     })
   }
 }
