@@ -1,4 +1,26 @@
 export type WordCaseType = 'PascalCase' | 'camelCase' | 'snake_case'
+
+const specialCharacterRegExp =
+  /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g
+const specialCharacterRegExpWithoutUnderBar =
+  /[\{\}\[\]\/?.,;:|\)*~`!^\-+<>@\#$%&\\\=\(\'\"]/g
+function checkValidText(txt: string) {
+  if (!isNaN(Number(txt.charAt(0)))) {
+    txt = txt.slice(1, txt.length)
+    return checkValidText(txt)
+  } else if (specialCharacterRegExp.test(txt.charAt(0))) {
+    txt = txt.slice(1, txt.length)
+    return checkValidText(txt)
+  }
+  if (txt.includes('-')) {
+    txt = txt.replace(/-/g, ' ')
+  }
+  if (specialCharacterRegExpWithoutUnderBar.test(txt)) {
+    txt = txt.replace(specialCharacterRegExpWithoutUnderBar, '')
+  }
+  return txt
+}
+
 export function firstLetterToUpperCase(txt: string) {
   return txt.charAt(0).toUpperCase() + txt.substring(1)
 }
@@ -6,15 +28,21 @@ export function firstLetterToLowerCase(txt: string) {
   return txt.charAt(0).toLocaleLowerCase() + txt.substring(1)
 }
 export function WhiteSpaceToPascalCase(text: string) {
-  return text.replace(/\w+/g, firstLetterToUpperCase).replace(/\s/g, '')
+  return checkValidText(text)
+    .replace(/\w+/g, firstLetterToUpperCase)
+    .replace(/\s/g, '')
 }
 export function whiteSpaceToCamelCase(text: string) {
   return firstLetterToLowerCase(
-    text.replace(/\w+/g, firstLetterToUpperCase).replace(/\s/g, '')
+    checkValidText(text)
+      .replace(/\w+/g, firstLetterToUpperCase)
+      .replace(/\s/g, '')
   )
 }
 export function white_space_to_snake_case(text: string) {
-  return text.replace(/\w+/g, firstLetterToLowerCase).replace(/\s/g, '_')
+  return checkValidText(text)
+    .replace(/\w+/g, firstLetterToLowerCase)
+    .replace(/\s/g, '_')
 }
 const handleWhiteSpaceWordCase = new Map<
   WordCaseType,

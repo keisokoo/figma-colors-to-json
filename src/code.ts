@@ -7,6 +7,8 @@ import {
 import { decompose_2d_matrix } from './decompose'
 import { splitWithWordCase, WordCaseType } from './wordFormat'
 
+console.log('hello')
+
 figma.showUI(__html__, { width: 480, height: 480 })
 
 async function changeText(name: string, colorName: string) {
@@ -118,9 +120,13 @@ function getAllStyles(
   type: WordCaseType = 'PascalCase',
   colorConfig: 'hex' | 'rgba' = 'hex'
 ) {
+  console.log('run')
+
   let textStyles = getLocalTextStyles(type)
   let colorStyles = getLocalSolidStyles(type, colorConfig)
 
+  console.log('textStyles', textStyles)
+  console.log('colorStyles', colorStyles)
   return {
     typography: textStyles,
     colors: colorStyles,

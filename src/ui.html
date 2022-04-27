@@ -34,6 +34,7 @@
 <button id="create">Copy to Clipboard</button>
 <button id="cancel">Cancel</button>
 <script>
+  console.log('opened')
   function copyToClipboard(textArea, textToCopy) {
     const actionElement = document.getElementById('action')
     if (navigator.clipboard && window.isSecureContext) {
