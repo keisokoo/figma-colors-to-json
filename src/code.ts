@@ -116,6 +116,39 @@ function getLocalTextStyles(type: WordCaseType = 'PascalCase') {
       return prev
     }, {} as any)
 }
+type StringObject = { [key in string]: string }
+function getStyleObject(styleObj: object, type: WordCaseType = 'PascalCase') {
+  let assetsArray: any[] = []
+  function recursionAssets(
+    style: object,
+    arr: StringObject[],
+    parentKey?: string
+  ): StringObject[] {
+    for (const [key, value] of Object.entries(style)) {
+      if (typeof value === 'string') {
+        let keyStyle = value
+        if (parentKey) {
+          keyStyle =
+            type === 'snake_case'
+              ? `${parentKey}_${key}`
+              : `${parentKey}${
+                  key.charAt(0).toUpperCase() + key.slice(1, key.length)
+                }`
+        }
+        arr.push({
+          [keyStyle]: value,
+        })
+      } else {
+        recursionAssets(value, arr, key)
+      }
+    }
+    return arr
+  }
+  return recursionAssets(styleObj, assetsArray).reduce((prev, curr) => {
+    prev[Object.keys(curr)[0]] = curr[Object.keys(curr)[0]]
+    return prev
+  }, {})
+}
 function getAllStyles(
   type: WordCaseType = 'PascalCase',
   colorConfig: 'hex' | 'rgba' = 'hex'
@@ -130,6 +163,8 @@ function getAllStyles(
   return {
     typography: textStyles,
     colors: colorStyles,
+    colorStyle: getStyleObject(colorStyles, type),
+    textStyles: getStyleObject(textStyles, type),
   }
 }
 function extractLinearGradientColor(
