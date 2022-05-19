@@ -374,7 +374,7 @@ figma.ui.postMessage({
   type: 'colors',
   text: `const assets = ${JSON.stringify(
     getAllStyles()
-  )};\nexport default assets`,
+  )};\nexport const { colors, typography } = assets;\nexport default assets`,
 })
 
 figma.ui.onmessage = (msg) => {
@@ -386,7 +386,7 @@ figma.ui.onmessage = (msg) => {
       type: 'colors',
       text: `const assets = ${JSON.stringify(
         getAllStyles(msg.wordCase, msg.colorConfig, msg.jsonConfig)
-      )};\nexport default assets`,
+      )};\nexport const { colors, typography } = assets;\nexport default assets`,
     })
   }
 }
