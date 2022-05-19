@@ -29,6 +29,16 @@
     <label for="rgba">rgba</label>
   </div>
 </form>
+<form name="jsonType">
+  <div>
+    <input type="radio" id="default" name="jsonInput" value="default" checked />
+    <label for="default">default</label>
+  </div>
+  <div>
+    <input type="radio" id="plain" name="jsonInput" value="plain" />
+    <label for="plain">plain</label>
+  </div>
+</form>
 <p><textarea id="text" style="width: 100%; min-height: 200px"></textarea></p>
 <div id="action"></div>
 <button id="create">Copy to Clipboard</button>
@@ -66,8 +76,10 @@
   }
   const radioInputs = document.wordCase.whiteCase
   const colorInput = document.colorType.colorInput
+  const jsonInput = document.jsonType.jsonInput
   var wordConfig = 'PascalCase'
   var colorConfig = 'hex'
+  var jsonConfig = 'default'
 
   for (let i = 0; i < radioInputs.length; i++) {
     radioInputs[i].addEventListener('change', function () {
@@ -80,6 +92,7 @@
             type: 'getColors',
             wordCase: this.value,
             colorConfig,
+            jsonConfig,
           },
         },
         '*'
@@ -97,6 +110,25 @@
             type: 'getColors',
             wordCase: wordConfig,
             colorConfig: this.value,
+            jsonConfig,
+          },
+        },
+        '*'
+      )
+    })
+  }
+  for (let i = 0; i < jsonInput.length; i++) {
+    jsonInput[i].addEventListener('change', function () {
+      if (this.value !== jsonConfig) {
+        jsonConfig = this.value
+      }
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: 'getColors',
+            wordCase: wordConfig,
+            colorConfig: colorConfig,
+            jsonConfig: this.value,
           },
         },
         '*'

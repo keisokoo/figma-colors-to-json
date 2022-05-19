@@ -126,7 +126,7 @@ function getStyleObject(styleObj: object, type: WordCaseType = 'PascalCase') {
   ): StringObject[] {
     for (const [key, value] of Object.entries(style)) {
       if (typeof value === 'string') {
-        let keyStyle = value
+        let keyStyle = key
         if (parentKey) {
           keyStyle =
             type === 'snake_case'
@@ -139,7 +139,16 @@ function getStyleObject(styleObj: object, type: WordCaseType = 'PascalCase') {
           [keyStyle]: value,
         })
       } else {
-        recursionAssets(value, arr, key)
+        let keyStyle = key
+        if (parentKey) {
+          keyStyle =
+            type === 'snake_case'
+              ? `${parentKey}_${key}`
+              : `${parentKey}${
+                  key.charAt(0).toUpperCase() + key.slice(1, key.length)
+                }`
+        }
+        recursionAssets(value, arr, keyStyle)
       }
     }
     return arr
@@ -151,20 +160,32 @@ function getStyleObject(styleObj: object, type: WordCaseType = 'PascalCase') {
 }
 function getAllStyles(
   type: WordCaseType = 'PascalCase',
-  colorConfig: 'hex' | 'rgba' = 'hex'
+  colorConfig: 'hex' | 'rgba' = 'hex',
+  jsonConfig: 'default' | 'plain' = 'default'
 ) {
   console.log('run')
 
   let textStyles = getLocalTextStyles(type)
   let colorStyles = getLocalSolidStyles(type, colorConfig)
-
+  let backgroundStyles = getBackgroundColor(type)
+  let mergeStyle = merge(backgroundStyles, colorStyles)
   console.log('textStyles', textStyles)
   console.log('colorStyles', colorStyles)
-  return {
-    typography: textStyles,
-    colors: colorStyles,
-    colorStyle: getStyleObject(colorStyles, type),
-    textStyles: getStyleObject(textStyles, type),
+  console.log('mergeStyle', mergeStyle)
+  if (jsonConfig === 'default') {
+    return {
+      typography: textStyles,
+      colors: mergeStyle,
+    }
+  } else {
+    let colors = getStyleObject(mergeStyle, type)
+    let typos = getStyleObject(textStyles, type)
+    return {
+      colors: getStyleObject(mergeStyle, type),
+      typography: getStyleObject(textStyles, type),
+      colorKeys: Object.keys(colors),
+      typoKeys: Object.keys(typos),
+    }
   }
 }
 function extractLinearGradientColor(
@@ -258,7 +279,7 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
     .map((paint: PaintStyle) => {
       return paint.paints.map((color) => {
         if (color.type === 'SOLID') {
-          return color
+          return null
           // return extractSolidColor(paint.name, type, color)
         } else if (color.type === 'GRADIENT_LINEAR') {
           const gradientTransform = color.gradientTransform
@@ -281,7 +302,7 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
             background: bgColor,
             type: color.type,
           } as any
-          return pushObj
+          return extractLinearGradientColor(paint.name, type, color)
         } else if (color.type === 'GRADIENT_RADIAL') {
           const gradientTransform = color.gradientTransform
           const matrixArray = [
@@ -298,18 +319,27 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
             decomposedMatrix,
             color.gradientTransform
           )
-          return color
+          return null
         } else {
-          return color
+          return null
         }
       })
     })
     .filter((ii) => !!ii)
-  console.log('backgroundColors', backgroundColors)
+    .reduce((prev, curr) => {
+      let groupNames = curr[0].groupName.map((item) => {
+        return item.replace(/\./g, '')
+      })
+
+      let groupObject = set({}, groupNames.join('.'), curr[0].background)
+      prev = merge(prev, groupObject)
+      return prev
+    }, {} as any)
+  return backgroundColors
 }
 // background: linear-gradient(295.36deg, rgba(0, 0, 0, 0.4) 15.47%, rgba(5, 0, 255, 0) 59.09%, rgba(250, 199, 208, 0.65) 79.44%);
 
-getBackgroundColor()
+// getBackgroundColor()
 function getLocalSolidStyles(
   type: WordCaseType = 'PascalCase',
   colorConfig: 'hex' | 'rgba' = 'hex'
@@ -355,7 +385,7 @@ figma.ui.onmessage = (msg) => {
     figma.ui.postMessage({
       type: 'colors',
       text: `const assets = ${JSON.stringify(
-        getAllStyles(msg.wordCase, msg.colorConfig)
+        getAllStyles(msg.wordCase, msg.colorConfig, msg.jsonConfig)
       )};\nexport default assets`,
     })
   }
