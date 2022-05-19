@@ -6,7 +6,7 @@ const specialCharacterRegExpWithoutUnderBar =
   /[\{\}\[\]\/?.,;:|\)*~`!^\-+<>@\#$%&\\\=\(\'\"]/g
 function checkValidText(txt: string) {
   if (!isNaN(Number(txt.charAt(0)))) {
-    txt = txt.slice(1, txt.length)
+    txt = `_${txt}`
     return checkValidText(txt)
   } else if (specialCharacterRegExp.test(txt.charAt(0))) {
     txt = txt.slice(1, txt.length)
