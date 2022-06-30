@@ -167,6 +167,7 @@ function getAllStyles(
 
   let textStyles = getLocalTextStyles(type)
   let colorStyles = getLocalSolidStyles(type, colorConfig)
+  let shadowStyles = getShadowColor(type)
   let backgroundStyles = getBackgroundColor(type)
   let mergeStyle = merge(backgroundStyles, colorStyles)
   console.log('textStyles', textStyles)
@@ -176,15 +177,13 @@ function getAllStyles(
     return {
       typography: textStyles,
       colors: mergeStyle,
+      shadows: shadowStyles,
     }
   } else {
-    let colors = getStyleObject(mergeStyle, type)
-    let typos = getStyleObject(textStyles, type)
     return {
       colors: getStyleObject(mergeStyle, type),
       typography: getStyleObject(textStyles, type),
-      colorKeys: Object.keys(colors),
-      typoKeys: Object.keys(typos),
+      shadows: getStyleObject(shadowStyles, type),
     }
   }
 }
@@ -239,6 +238,31 @@ function extractSolidColor(
   } as any
   return pushObj
 }
+function extractShadowColor(
+  name: string,
+  type: WordCaseType,
+  currentColor: DropShadowEffect
+) {
+  let hexColor = rgbaToHex(
+    currentColor.color.r,
+    currentColor.color.g,
+    currentColor.color.b,
+    currentColor.color.b
+  )
+  let pushObj = {
+    name: name.toLocaleLowerCase(),
+    hex: hexColor,
+    code: `${currentColor.offset.x}px ${currentColor.offset.y}px ${currentColor.radius}px ${currentColor.spread}px ${hexColor}`,
+    rgba: `rgba(${componentToRGBNumber(
+      currentColor.color.r
+    )},${componentToRGBNumber(currentColor.color.g)},${componentToRGBNumber(
+      currentColor.color.b
+    )},${currentColor.color.a})`,
+    color: currentColor,
+    groupName: splitWithWordCase(name, '/', type),
+  } as any
+  return pushObj
+}
 function extractSolidBackgroundColor(
   name: string,
   type: WordCaseType,
@@ -262,7 +286,53 @@ function extractSolidBackgroundColor(
   } as any
   return pushObj
 }
+function getShadowColor(type: WordCaseType = 'PascalCase') {
+  const effectStyles = figma.getLocalEffectStyles()
 
+  const shadowColors = effectStyles
+    .filter((effect) => {
+      return (
+        effect.type === 'EFFECT' &&
+        effect.effects.every((eff) => eff.type === 'DROP_SHADOW')
+      )
+    })
+    .map((effect) => {
+      return effect.effects
+        .map((eff) => {
+          if (eff.type === 'DROP_SHADOW') {
+            const extracted = extractShadowColor(effect.name, type, eff)
+
+            return extracted
+          }
+          return null
+        })
+        .filter((ii) => !!ii)
+        .reduce((prev, curr) => {
+          prev = {
+            ...prev,
+            name: curr.name,
+            groupName: curr.groupName,
+            code: prev?.code ? prev.code + ', ' + curr.code : curr.code,
+          }
+          return prev
+        }, {} as any)
+    })
+    .filter((ii) => !!ii)
+    .map((eff) => {
+      console.log('eff', eff)
+
+      return eff
+    })
+    .reduce((prev, curr) => {
+      let groupNames = curr.groupName.map((item) => {
+        return item.replace(/\./g, '')
+      })
+      let groupObject = set({}, groupNames.join('.'), curr.code)
+      prev = merge(prev, groupObject)
+      return prev
+    }, {} as any)
+  return shadowColors
+}
 function getBackgroundColor(type: WordCaseType = 'PascalCase') {
   const paintStyles = figma.getLocalPaintStyles()
   // background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
@@ -374,7 +444,7 @@ figma.ui.postMessage({
   type: 'colors',
   text: `const assets = ${JSON.stringify(
     getAllStyles()
-  )};\nexport const { colors, typography } = assets;\nexport default assets`,
+  )};\nexport const { colors, typography, shadows } = assets;\nexport default assets`,
 })
 
 figma.ui.onmessage = (msg) => {
@@ -386,7 +456,7 @@ figma.ui.onmessage = (msg) => {
       type: 'colors',
       text: `const assets = ${JSON.stringify(
         getAllStyles(msg.wordCase, msg.colorConfig, msg.jsonConfig)
-      )};\nexport const { colors, typography } = assets;\nexport default assets`,
+      )};\nexport const { colors, typography, shadows } = assets;\nexport default assets`,
     })
   }
 }
