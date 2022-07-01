@@ -1,4 +1,8 @@
-export type WordCaseType = 'PascalCase' | 'camelCase' | 'snake_case'
+export type WordCaseType =
+  | 'PascalCase'
+  | 'camelCase'
+  | 'snake_case'
+  | 'original'
 
 const specialCharacterRegExp =
   /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g
@@ -51,6 +55,7 @@ const handleWhiteSpaceWordCase = new Map<
   ['PascalCase', WhiteSpaceToPascalCase],
   ['camelCase', whiteSpaceToCamelCase],
   ['snake_case', white_space_to_snake_case],
+  ['original', (value) => value],
 ])
 export function splitWithWordCase(
   text: string,

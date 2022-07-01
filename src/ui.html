@@ -18,6 +18,10 @@
     <input type="radio" id="snake_case" name="whiteCase" value="snake_case" />
     <label for="snake_case">snake_case</label>
   </div>
+  <div>
+    <input type="radio" id="original" name="whiteCase" value="original" />
+    <label for="original">original</label>
+  </div>
 </form>
 <form name="colorType">
   <div>
@@ -44,7 +48,6 @@
 <button id="create">Copy to Clipboard</button>
 <button id="cancel">Cancel</button>
 <script>
-  console.log('opened')
   function copyToClipboard(textArea, textToCopy) {
     const actionElement = document.getElementById('action')
     if (navigator.clipboard && window.isSecureContext) {
@@ -57,6 +60,9 @@
       return new Promise((res, rej) => {
         document.execCommand('copy') ? res() : rej()
         actionElement.innerText = 'Copied!'
+        setTimeout(() => {
+          parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+        }, 1000)
       })
     }
   }
@@ -86,13 +92,18 @@
       if (this.value !== wordConfig) {
         wordConfig = this.value
       }
+      if (this.value === 'original') {
+        document.querySelector('form[name="jsonType"]').style.display = 'none'
+      } else {
+        document.querySelector('form[name="jsonType"]').style.display = 'block'
+      }
       parent.postMessage(
         {
           pluginMessage: {
             type: 'getColors',
             wordCase: this.value,
             colorConfig,
-            jsonConfig,
+            jsonConfig: this.value === 'original' ? 'default' : jsonConfig,
           },
         },
         '*'

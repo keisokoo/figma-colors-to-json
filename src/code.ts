@@ -7,8 +7,6 @@ import {
 import { decompose_2d_matrix } from './decompose'
 import { splitWithWordCase, WordCaseType } from './wordFormat'
 
-console.log('hello')
-
 figma.showUI(__html__, { width: 480, height: 480 })
 
 async function changeText(name: string, colorName: string) {
@@ -108,10 +106,15 @@ function getLocalTextStyles(type: WordCaseType = 'PascalCase') {
       return pushObj
     })
     .reduce((prev, curr) => {
+      let originalName = curr.name
       let groupNames = curr.groupName.map((item) => {
         return item.replace(/\./g, '')
       })
-      let groupObject = set({}, groupNames.join('.'), curr.css)
+      let groupObject = set(
+        {},
+        type === 'original' ? originalName : groupNames.join('.'),
+        curr.css
+      )
       prev = merge(prev, groupObject)
       return prev
     }, {} as any)
@@ -170,9 +173,6 @@ function getAllStyles(
   let shadowStyles = getShadowColor(type)
   let backgroundStyles = getBackgroundColor(type)
   let mergeStyle = merge(backgroundStyles, colorStyles)
-  console.log('textStyles', textStyles)
-  console.log('colorStyles', colorStyles)
-  console.log('mergeStyle', mergeStyle)
   if (jsonConfig === 'default') {
     return {
       typography: textStyles,
@@ -206,7 +206,7 @@ function extractLinearGradientColor(
     decomposedMatrix.deg
   }deg,${gradientStopsToRgba([...currentColor.gradientStops])};`
   let pushObj = {
-    name: name.toLocaleLowerCase(),
+    name: name,
     gradientStops: currentColor.gradientStops,
     gradientTransform: currentColor.gradientTransform,
     background: bgColor,
@@ -221,7 +221,7 @@ function extractSolidColor(
   currentColor: SolidPaint
 ) {
   let pushObj = {
-    name: name.toLocaleLowerCase(),
+    name: name,
     hex: rgbaToHex(
       currentColor.color.r,
       currentColor.color.g,
@@ -250,7 +250,7 @@ function extractShadowColor(
     currentColor.color.b
   )
   let pushObj = {
-    name: name.toLocaleLowerCase(),
+    name: name,
     hex: hexColor,
     code: `${currentColor.offset.x}px ${currentColor.offset.y}px ${currentColor.radius}px ${currentColor.spread}px ${hexColor}`,
     rgba: `rgba(${componentToRGBNumber(
@@ -269,7 +269,7 @@ function extractSolidBackgroundColor(
   currentColor: SolidPaint
 ) {
   let pushObj = {
-    name: name.toLocaleLowerCase(),
+    name: name,
     hex: rgbaToHex(
       currentColor.color.r,
       currentColor.color.g,
@@ -318,16 +318,16 @@ function getShadowColor(type: WordCaseType = 'PascalCase') {
         }, {} as any)
     })
     .filter((ii) => !!ii)
-    .map((eff) => {
-      console.log('eff', eff)
-
-      return eff
-    })
     .reduce((prev, curr) => {
+      let originalName = curr.name
       let groupNames = curr.groupName.map((item) => {
         return item.replace(/\./g, '')
       })
-      let groupObject = set({}, groupNames.join('.'), curr.code)
+      let groupObject = set(
+        {},
+        type === 'original' ? originalName : groupNames.join('.'),
+        curr.code
+      )
       prev = merge(prev, groupObject)
       return prev
     }, {} as any)
@@ -366,7 +366,7 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
             decomposedMatrix.deg
           }deg,${gradientStopsToRgba([...color.gradientStops])};`
           let pushObj = {
-            name: paint.name.toLocaleLowerCase(),
+            name: paint.name,
             gradientStops: color.gradientStops,
             gradientTransform: color.gradientTransform,
             background: bgColor,
@@ -397,11 +397,16 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
     })
     .filter((ii) => !!ii)
     .reduce((prev, curr) => {
+      let originalName = curr[0].name
       let groupNames = curr[0].groupName.map((item) => {
         return item.replace(/\./g, '')
       })
 
-      let groupObject = set({}, groupNames.join('.'), curr[0].background)
+      let groupObject = set(
+        {},
+        type === 'original' ? originalName : groupNames.join('.'),
+        curr[0].background
+      )
       prev = merge(prev, groupObject)
       return prev
     }, {} as any)
@@ -427,12 +432,13 @@ function getLocalSolidStyles(
     })
     .filter((ii) => ii)
     .reduce((prev, curr) => {
+      let originalName = curr.name
       let groupNames = curr.groupName.map((item) => {
         return item.replace(/\./g, '')
       })
       let groupObject = set(
         {},
-        groupNames.join('.'),
+        type === 'original' ? originalName : groupNames.join('.'),
         colorConfig === 'rgba' ? curr.rgba : curr.hex
       )
       prev = merge(prev, groupObject)
