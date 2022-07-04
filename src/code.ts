@@ -2,7 +2,7 @@ import { merge, set } from 'lodash'
 import {
   componentToRGBNumber,
   gradientStopsToRgba,
-  rgbaToHex,
+  rgbaToHex
 } from './colorFormat'
 import { decompose_2d_matrix } from './decompose'
 import { splitWithWordCase, WordCaseType } from './wordFormat'
@@ -326,7 +326,7 @@ function getShadowColor(type: WordCaseType = 'PascalCase') {
       let groupObject = set(
         {},
         type === 'original' ? originalName : groupNames.join('.'),
-        curr.code + ';'
+        'box-shadow: '+curr.code + ';'
       )
       prev = merge(prev, groupObject)
       return prev
