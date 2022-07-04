@@ -326,7 +326,7 @@ function getShadowColor(type: WordCaseType = 'PascalCase') {
       let groupObject = set(
         {},
         type === 'original' ? originalName : groupNames.join('.'),
-        curr.code
+        curr.code + ';'
       )
       prev = merge(prev, groupObject)
       return prev
