@@ -1,8 +1,8 @@
-import { merge, set } from 'lodash'
+import { merge, set } from 'remeda'
 import {
   componentToRGBNumber,
   gradientStopsToRgba,
-  rgbaToHex
+  rgbaToHex,
 } from './colorFormat'
 import { decompose_2d_matrix } from './decompose'
 import { splitWithWordCase, WordCaseType } from './wordFormat'
@@ -111,7 +111,7 @@ function getLocalTextStyles(type: WordCaseType = 'PascalCase') {
         return item.replace(/\./g, '')
       })
       let groupObject = set(
-        {},
+        {} as any,
         type === 'original' ? originalName : groupNames.join('.'),
         curr.css
       )
@@ -324,9 +324,9 @@ function getShadowColor(type: WordCaseType = 'PascalCase') {
         return item.replace(/\./g, '')
       })
       let groupObject = set(
-        {},
+        {} as any,
         type === 'original' ? originalName : groupNames.join('.'),
-        'box-shadow: '+curr.code + ';'
+        'box-shadow: ' + curr.code + ';'
       )
       prev = merge(prev, groupObject)
       return prev
@@ -403,7 +403,7 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
       })
 
       let groupObject = set(
-        {},
+        {} as any,
         type === 'original' ? originalName : groupNames.join('.'),
         curr[0].background
       )
@@ -437,7 +437,7 @@ function getLocalSolidStyles(
         return item.replace(/\./g, '')
       })
       let groupObject = set(
-        {},
+        {} as any,
         type === 'original' ? originalName : groupNames.join('.'),
         colorConfig === 'rgba' ? curr.rgba : curr.hex
       )
