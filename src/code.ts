@@ -352,6 +352,7 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
           return null
           // return extractSolidColor(paint.name, type, color)
         } else if (color.type === 'GRADIENT_LINEAR') {
+          console.log('GRADIENT_LINEAR', color)
           const gradientTransform = color.gradientTransform
           const matrixArray = [
             gradientTransform[0][0],
@@ -361,10 +362,18 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
             gradientTransform[1][1],
             gradientTransform[1][2],
           ] as [number, number, number, number, number, number]
-          const decomposedMatrix = decompose_2d_matrix(matrixArray)
+          const decomposedMatrix = decompose_2d_matrix(
+            [...color.gradientTransform[0]].concat(color.gradientTransform[1])
+          )
+          console.log(
+            'decomposedMatrix in linear',
+            matrixArray,
+            decomposedMatrix,
+            color.gradientTransform
+          )
           const bgColor = `linear-gradient(${
             decomposedMatrix.deg
-          }deg,${gradientStopsToRgba([...color.gradientStops])};`
+          }deg,${gradientStopsToRgba([...color.gradientStops])})`
           let pushObj = {
             name: paint.name,
             gradientStops: color.gradientStops,
@@ -374,6 +383,8 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
           } as any
           return extractLinearGradientColor(paint.name, type, color)
         } else if (color.type === 'GRADIENT_RADIAL') {
+          console.log('radial', color)
+
           const gradientTransform = color.gradientTransform
           const matrixArray = [
             Math.round(gradientTransform[0][0]),
@@ -383,9 +394,11 @@ function getBackgroundColor(type: WordCaseType = 'PascalCase') {
             Math.round(gradientTransform[1][1]),
             Math.round(gradientTransform[1][2]),
           ] as [number, number, number, number, number, number]
-          const decomposedMatrix = decompose_2d_matrix(matrixArray)
+          const decomposedMatrix = decompose_2d_matrix(
+            [...color.gradientTransform[0]].concat(color.gradientTransform[1])
+          )
           console.log(
-            'decomposedMatrix',
+            'decomposedMatrix in GRADIENT_RADIAL',
             decomposedMatrix,
             color.gradientTransform
           )

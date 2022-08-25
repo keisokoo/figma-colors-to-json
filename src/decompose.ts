@@ -1,6 +1,6 @@
-export function decompose_2d_matrix(
-  mat: [number, number, number, number, number, number]
-) {
+export function decompose_2d_matrix(mat: number[]) {
+  console.log('mat', mat)
+
   var a = mat[0]
   var b = mat[1]
   var c = mat[2]
