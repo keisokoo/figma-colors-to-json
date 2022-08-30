@@ -204,7 +204,7 @@ function extractLinearGradientColor(
   const decomposedMatrix = decompose_2d_matrix(matrixArray)
   const bgColor = `linear-gradient(${
     decomposedMatrix.deg
-  }deg,${gradientStopsToRgba([...currentColor.gradientStops])};`
+  }deg,${gradientStopsToRgba([...currentColor.gradientStops])});`
   let pushObj = {
     name: name,
     gradientStops: currentColor.gradientStops,
