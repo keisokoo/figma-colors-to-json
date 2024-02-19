@@ -1,74 +1,74 @@
 const assets = {
   typography: {
-    DisplayBold62px:
+    "Display.Bold62px":
       "font-size:62px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:76px;",
-    DisplayRegular62px:
+    "Display.Regular62px":
       "font-size:62px;font-weight:400;letter-spacing:-0.4000000059604645px;line-height:76px;",
-    DisplayBold40px:
+    "Display.Bold40px":
       "font-size:40px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:52px;",
-    DisplayRegular40px:
+    "Display.Regular40px":
       "font-size:40px;font-weight:400;letter-spacing:-0.4000000059604645px;line-height:52px;",
-    DisplayBold32px:
+    "Display.Bold32px":
       "font-size:32px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:42px;",
-    DisplayRegular32px:
+    "Display.Regular32px":
       "font-size:32px;font-weight:400;letter-spacing:-0.4000000059604645px;line-height:42px;",
-    DisplayBold24px:
+    "Display.Bold24px":
       "font-size:24px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:34px;",
-    DisplayRegular24px:
+    "Display.Regular24px":
       "font-size:24px;font-weight:400;letter-spacing:-0.4000000059604645px;line-height:34px;",
-    DisplayBold18px:
+    "Display.Bold18px":
       "font-size:18px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:26px;",
-    DisplayRegular18px:
+    "Display.Regular18px":
       "font-size:18px;font-weight:400;letter-spacing:-0.4000000059604645px;line-height:26px;",
-    BodyBold16px:
+    "Body.Bold16px":
       "font-size:16px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:24px;",
-    BodyRegular16px:
+    "Body.Regular16px":
       "font-size:16px;font-weight:400;letter-spacing:-0.4000000059604645px;line-height:24px;",
-    BodyBold14px:
+    "Body.Bold14px":
       "font-size:14px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:20px;",
-    BodyRegular14px:
+    "Body.Regular14px":
       "font-size:14px;font-weight:400;letter-spacing:-0.4000000059604645px;line-height:20px;",
-    BodyBold12px:
+    "Body.Bold12px":
       "font-size:12px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:16px;",
-    BodyRegular12px:
+    "Body.Regular12px":
       "font-size:12px;font-weight:400;letter-spacing:-0.4000000059604645px;line-height:16px;",
-    MenuMenuBold:
+    "Menu.MenuBold":
       "font-size:10px;font-weight:700;letter-spacing:-0.4000000059604645px;line-height:14px;",
   },
   colors: {
-    PrimaryGradient:
+    "Primary.Gradient":
       "linear-gradient(147.62171411167768deg,rgba(45,152,251,1) 0%,rgba(7,51,140,1) 55.00873923301697%);",
-    AccentGradient:
+    "Accent.Gradient":
       "linear-gradient(327.6217146453793deg,rgba(253,29,29,1) 0%,rgba(242,105,56,1) 55.000001192092896%);",
-    DangerDefault: "#ed5656",
-    DangerDark: "#e11c1c",
-    DangerLight: "#ffe6e6",
-    WarningDefault: "#ffe456",
-    WarningDark: "#f5ae24",
-    WarningLight: "#fff1a8",
-    SuccessDefault: "#1fa363",
-    SuccessDark: "#01763e",
-    SuccessLight: "#b7ecd3",
-    GrayscaleBlack: "#0a0a0a",
-    GrayscaleBlackLight: "#0a0a0a",
-    GrayscaleGrayDark: "#5e6168",
-    GrayscaleGrayDefault: "#84878f",
-    GrayscaleGrayLight: "#b8babf",
-    GrayscaleGrayLighter: "#e1e1e1",
-    GrayscaleBackgroundDark: "#f2f2f2",
-    GrayscaleBackgroundLight: "#f8f8f8",
-    WhiteWhiteOff: "#ffffff",
-    WhiteWhite70: "#ffffffb2",
-    WhiteWhite50: "#ffffff7f",
-    WhiteWhite30: "#ffffff4c",
-    PrimaryDefault: "#07338c",
-    PrimaryLight: "#8dadee",
-    PrimaryDark: "#162d59",
-    PrimaryLighter: "#e4ecff",
-    AccentDefault: "#f26938",
-    AccentDark: "#d3410d",
-    AccentLight: "#f9a486",
-    AccentLighter: "#ffe2d7",
+    "Danger.Default": "#ed5656",
+    "Danger.Dark": "#e11c1c",
+    "Danger.Light": "#ffe6e6",
+    "Warning.Default": "#ffe456",
+    "Warning.Dark": "#f5ae24",
+    "Warning.Light": "#fff1a8",
+    "Success.Default": "#1fa363",
+    "Success.Dark": "#01763e",
+    "Success.Light": "#b7ecd3",
+    "Grayscale.Black": "#0a0a0a",
+    "Grayscale.BlackLight": "#0a0a0a",
+    "Grayscale.GrayDark": "#5e6168",
+    "Grayscale.GrayDefault": "#84878f",
+    "Grayscale.GrayLight": "#b8babf",
+    "Grayscale.GrayLighter": "#e1e1e1",
+    "Grayscale.BackgroundDark": "#f2f2f2",
+    "Grayscale.BackgroundLight": "#f8f8f8",
+    "White.WhiteOff": "#ffffff",
+    "White.White70": "#ffffffb2",
+    "White.White50": "#ffffff7f",
+    "White.White30": "#ffffff4c",
+    "Primary.Default": "#07338c",
+    "Primary.Light": "#8dadee",
+    "Primary.Dark": "#162d59",
+    "Primary.Lighter": "#e4ecff",
+    "Accent.Default": "#f26938",
+    "Accent.Dark": "#d3410d",
+    "Accent.Light": "#f9a486",
+    "Accent.Lighter": "#ffe2d7",
   },
   shadows: {
     Input_default: "box-shadow: -1px 1px 6px 0px #50505050;",
